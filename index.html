@@ -47,7 +47,11 @@
             <h2>Select Class & Input Gear</h2>
             <select id="class-selector">
                 <option value="barbarian">Barbarian</option>
+                <option value="druid">Druid</option>
+                <option value="necromancer">Necromancer</option>
+                <option value="rogue">Rogue</option>
                 <option value="sorcerer">Sorcerer</option>
+                <option value="spiritborn">Spiritborn</option>
             </select>
             <div class="gear-grid">
                 <input id="helm" placeholder="Helm stats">
@@ -113,7 +117,11 @@
             const r = document.getElementById('recommendations-container');
             const builds = {
                 barbarian: ["Upheaval Barbarian", "Whirlwind Barbarian", "Thorns Barbarian"],
-                sorcerer: ["Frozen Orb Sorcerer", "Chain Lightning Sorcerer", "Fire Wall Sorcerer"]
+                druid: ["Storm Druid", "Werewolf Druid", "Earthen Bulwark Druid"],
+                necromancer: ["Bone Spear Necromancer", "Summoner Necromancer", "Blood Lance Necromancer"],
+                rogue: ["Penetrating Shot Rogue", "Twisting Blades Rogue", "Poison Trap Rogue"],
+                sorcerer: ["Frozen Orb Sorcerer", "Chain Lightning Sorcerer", "Fire Wall Sorcerer"],
+                spiritborn: ["Centipede Spiritborn", "Quill Volley Spiritborn", "Eagle Spiritborn"]
             };
             r.innerHTML = builds[cl].map(b => `<div style='margin-bottom:10px;padding:10px;background:#333;border-radius:5px;'>🔸 ${b}</div>`).join('');
             switchTab({ currentTarget: document.querySelectorAll('.tab')[1] }, 'recommendations');
@@ -132,4 +140,3 @@
     </script>
 </body>
 </html>
-Updated index.html with fixes and improvements
