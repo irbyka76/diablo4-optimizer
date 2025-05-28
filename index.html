@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Diablo 4 Optimizer</title>
+  <script>
+    const whTooltips = {colorLinks: true, iconizeLinks: true, renameLinks: true};
+  </script>
+  <script src="https://wow.zamimg.com/js/tooltips.js"></script>
   <style>
     body {
       background-color: #1c1c1c;
@@ -12,37 +16,112 @@
       margin: 0;
       padding: 20px;
     }
+    .gear-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
     .gear-slot {
       background: #2a2a2a;
       border: 1px solid #444;
       border-radius: 8px;
-      padding: 10px;
-      margin: 10px;
+      padding: 15px;
       text-align: center;
-      width: 120px;
-      display: inline-block;
+      cursor: pointer;
     }
     .gear-slot img {
-      width: 56px;
-      height: 56px;
+      width: 40px;
+      height: 40px;
+      display: block;
+      margin: 0 auto 10px;
     }
-    .gear-container {
+    .gear-slot-name {
+      font-weight: bold;
+      color: #f9b64d;
+    }
+    .gear-slot-value {
+      font-size: 0.9em;
+      color: #999;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+    .modal-content {
+      background: #2e2e2e;
+      border-radius: 8px;
+      width: 600px;
+      max-height: 80vh;
+      overflow: hidden;
       display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+      flex-direction: column;
     }
-    select, input[type="text"] {
-      background: #333;
-      color: #fff;
+    .modal-header {
+      padding: 10px 15px;
+      border-bottom: 1px solid #444;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1.2em;
+    }
+    .modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 15px;
+    }
+    .modal-body input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      background: #1c1c1c;
+      color: white;
       border: 1px solid #555;
       border-radius: 4px;
-      padding: 4px;
-      margin-top: 5px;
-      width: 100%;
+    }
+    .aspect-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .aspect-list li {
+      padding: 8px;
+      border-bottom: 1px solid #444;
+      cursor: pointer;
+    }
+    .modal-footer {
+      padding: 10px 15px;
+      border-top: 1px solid #444;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .modal-footer button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .cancel-btn {
+      background: #444;
+      color: #fff;
+    }
+    .apply-btn {
+      background: #f0a500;
+      color: #000;
     }
   </style>
-  <script>const whTooltips = {colorLinks: true, iconizeLinks: true, renameLinks: true};</script>
-  <script src="https://wow.zamimg.com/js/tooltips.js"></script>
 </head>
 <body>
   <h1>Diablo 4 Build Optimizer</h1>
@@ -58,71 +137,112 @@
 
   <div id="gear-inputs" class="gear-container"></div>
 
+  <div class="modal" id="gearModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Select Gear or Aspect</h2>
+        <span style="cursor:pointer" onclick="closeModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="gearSearch" placeholder="Search..." oninput="filterGearList()">
+        <ul class="aspect-list" id="gearList"></ul>
+      </div>
+      <div class="modal-footer">
+        <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+        <button class="apply-btn" onclick="applyGearSelection()">Apply</button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    const gearOptions = [
+      // Placeholder for many items and aspects from all classes (already formatted for Wowhead)
+      "<a href='https://www.wowhead.com/diablo-4/item/harlequin-crest-439410' class='d4-q5'>Harlequin Crest</a>",
+      "<a href='https://www.wowhead.com/diablo-4/item/insatiable-fury-439406' class='d4-q5'>Insatiable Fury</a>",
+      "<a href='https://www.wowhead.com/diablo-4/item/penitent-greaves-439408' class='d4-q5'>Penitent Greaves</a>",
+      "<a href='https://www.wowhead.com/diablo-4/item/andariels-visage-439400' class='d4-q5'>Andariel's Visage</a>",
+      "<a href='https://www.wowhead.com/diablo-4/item/razortail-439405' class='d4-q5'>Razortail</a>",
+      "<a href='https://www.wowhead.com/diablo-4/item/temerity-439407' class='d4-q5'>Temerity</a>",
+      "<a href='https://www.wowhead.com/diablo-4/aspect/aspect-of-disobedience-1288919' class='d4-q5'>Aspect of Disobedience</a>",
+      "<a href='https://www.wowhead.com/diablo-4/aspect/aspect-of-audacity-1288916' class='d4-q5'>Aspect of Audacity</a>",
+      "<a href='https://www.wowhead.com/diablo-4/aspect/aspect-of-cruel-sustenance-1288918' class='d4-q5'>Aspect of Cruel Sustenance</a>",
+      "<a href='https://www.wowhead.com/diablo-4/aspect/aspect-of-concussive-strikes-1288917' class='d4-q5'>Aspect of Concussive Strikes</a>",
+      "<a href='https://www.wowhead.com/diablo-4/aspect/aspect-of-assistance-1288915' class='d4-q5'>Aspect of Assistance</a>"
+    ];
+
     const classGearSlots = {
-      barbarian: [
-        'helm','chest','gloves','pants','boots','amulet','ring1','ring2','two-handed-weapon','dual-wield-weapon-1','dual-wield-weapon-2'
-      ],
-      druid: [
-        'helm','chest','gloves','pants','boots','amulet','ring1','ring2','weapon','offhand'
-      ],
-      necromancer: [
-        'helm','chest','gloves','pants','boots','amulet','ring1','ring2','weapon','offhand'
-      ],
-      rogue: [
-        'helm','chest','gloves','pants','boots','amulet','ring1','ring2','ranged-weapon','dual-wield-weapon-1','dual-wield-weapon-2'
-      ],
-      sorcerer: [
-        'helm','chest','gloves','pants','boots','amulet','ring1','ring2','weapon','offhand'
-      ],
-      spiritborn: [
-        'helm','chest','gloves','pants','boots','amulet','ring1','ring2','weapon'
-      ]
+      barbarian: ['helm','chest','gloves','pants','boots','amulet','ring1','ring2','slashing','bludgeoning'],
+      druid: ['helm','chest','gloves','pants','boots','amulet','ring1','ring2','staff','offhand'],
+      necromancer: ['helm','chest','gloves','pants','boots','amulet','ring1','ring2','wand','focus'],
+      rogue: ['helm','chest','gloves','pants','boots','amulet','ring1','ring2','ranged-weapon','dual-wield-weapon-1','dual-wield-weapon-2'],
+      sorcerer: ['helm','chest','gloves','pants','boots','amulet','ring1','ring2','staff','focus'],
+      spiritborn: ['helm','chest','gloves','pants','boots','amulet','ring1','ring2','weapon','offhand']
     };
 
     const gearIcons = {
-      'helm': 'helm',
-      'chest': 'chest-armor',
-      'gloves': 'gloves',
-      'pants': 'pants',
-      'boots': 'boots',
-      'amulet': 'amulet',
-      'ring1': 'ring-1',
-      'ring2': 'ring-2',
-      'weapon': 'slashing-weapon',
-      'offhand': 'focus',
-      'two-handed-weapon': 'slashing-weapon',
-      'dual-wield-weapon-1': 'dual-wield-weapon-1',
-      'dual-wield-weapon-2': 'dual-wield-weapon-2',
-      'ranged-weapon': 'ranged-weapon'
+      'helm': 'helm', 'chest': 'chest-armor', 'gloves': 'gloves', 'pants': 'pants', 'boots': 'boots',
+      'amulet': 'amulet', 'ring1': 'ring-1', 'ring2': 'ring-2',
+      'ranged-weapon': 'ranged-weapon', 'dual-wield-weapon-1': 'dual-wield-weapon-1', 'dual-wield-weapon-2': 'dual-wield-weapon-2',
+      'slashing': 'slashing-weapon', 'bludgeoning': 'bludgeoning-weapon', 'staff': 'staff', 'wand': 'wand', 'focus': 'focus',
+      'weapon': 'sword', 'offhand': 'offhand'
     };
 
+    let selectedSlotId = null;
+
     function updateGearSlots() {
-      const selectedClass = document.getElementById('class-select').value;
       const gearArea = document.getElementById('gear-inputs');
       gearArea.innerHTML = '';
+      const classSelected = document.getElementById('class-select').value;
 
-      classGearSlots[selectedClass].forEach(slot => {
-        const icon = gearIcons[slot] || 'default';
-        const slotDiv = document.createElement('div');
-        slotDiv.className = 'gear-slot';
-        slotDiv.innerHTML = `
-          <img src="https://cdn.mobalytics.gg/assets/diablo-4/images/gear-slots/${icon}.svg" alt="${slot}" />
-          <div>${slot.replace(/-/g, ' ')}</div>
-          <select>
-            <option>Legendary</option>
-            <option>Ancestral</option>
-            <option>Unique</option>
-            <option>Mythic Unique</option>
-          </select>
-          <input type="text" placeholder="Enter stats or name" />
+      classGearSlots[classSelected].forEach(slot => {
+        const div = document.createElement('div');
+        div.className = 'gear-slot';
+        div.id = `slot-${slot}`;
+        div.innerHTML = `
+          <img src="https://cdn.mobalytics.gg/assets/diablo-4/images/gear-slots/${gearIcons[slot] || 'helm'}.svg" alt="${slot}">
+          <div class="gear-slot-name">${slot.replace(/-/g, ' ')}</div>
+          <div class="gear-slot-value">Empty</div>
         `;
-        gearArea.appendChild(slotDiv);
+        div.onclick = () => openModal(slot);
+        gearArea.appendChild(div);
       });
     }
 
-    // Initialize with default class
-    window.onload = updateGearSlots;
+    function openModal(slotId) {
+      selectedSlotId = slotId;
+      document.getElementById('gearSearch').value = '';
+      filterGearList();
+      document.getElementById('gearModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('gearModal').style.display = 'none';
+    }
+
+    function filterGearList() {
+      const query = document.getElementById('gearSearch').value.toLowerCase();
+      const list = document.getElementById('gearList');
+      list.innerHTML = '';
+      gearOptions.filter(option => option.toLowerCase().includes(query)).forEach(option => {
+        const li = document.createElement('li');
+        li.innerHTML = option;
+        li.onclick = () => {
+          document.getElementById('gearSearch').value = li.textContent;
+        };
+        list.appendChild(li);
+      });
+    }
+
+    function applyGearSelection() {
+      const selectedValue = document.getElementById('gearSearch').value;
+      const slotDiv = document.getElementById(`slot-${selectedSlotId}`);
+      if (slotDiv) {
+        slotDiv.querySelector('.gear-slot-value').textContent = selectedValue || 'Empty';
+      }
+      closeModal();
+    }
+
+    updateGearSlots();
   </script>
 </body>
 </html>
