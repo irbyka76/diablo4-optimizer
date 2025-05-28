@@ -1,108 +1,210 @@
-    <script>const whTooltips = {colorLinks: true, iconizeLinks: true, renameLinks: true};</script>
-    <script src="https://wow.zamimg.com/js/tooltips.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diablo 4 Build Optimizer</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0a0a0a, #2a1a1a);
+      color: #e0e0e0;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 20px;
+    }
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .tab {
+      padding: 10px 20px;
+      background: #333;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+    }
+    .tab.active {
+      background: #A0522D;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .gear-section {
+      background: #1f1f1f;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .gear-section label {
+      font-weight: bold;
+      color: #ffcc66;
+    }
+    .gear-section select,
+    .gear-section input {
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      font-size: 14px;
+      background: #2b2b2b;
+      color: #fff;
+    }
+  </style>
+  <script>const whTooltips = {colorLinks: true, iconizeLinks: true, renameLinks: true};</script>
+  <script src="https://wow.zamimg.com/js/tooltips.js"></script>
 </head>
 <body>
-    <div class="container">
-        <header><h1>⚔️ Diablo 4 Build Optimizer ⚔️</h1></header>
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab(event,'gear-input')">🎯 Gear Input</button>
-            <button class="tab" onclick="switchTab(event,'recommendations')">📋 Recommendations</button>
-            <button class="tab" onclick="switchTab(event,'comparison')">⚖️ Comparison</button>
-        </div>
-        <div id="gear-input" class="tab-content">
-            <h2>Select Class & Input Gear</h2>
-            <select id="class-selector">
-                <option value="barbarian">Barbarian</option>
-                <option value="druid">Druid</option>
-                <option value="necromancer">Necromancer</option>
-                <option value="rogue">Rogue</option>
-                <option value="sorcerer">Sorcerer</option>
-                <option value="spiritborn">Spiritborn</option>
-            </select>
-            <div class="gear-grid">
-                <input id="helm" placeholder="Helm stats">
-                <input id="chest" placeholder="Chest stats">
-                <input id="gloves" placeholder="Gloves stats">
-                <input id="pants" placeholder="Pants stats">
-                <input id="boots" placeholder="Boots stats">
-                <input id="weapon" placeholder="Weapon stats">
-            </div>
-            <button onclick="generateRecommendations()">🔍 Generate</button>
-            <button onclick="clearGearInputs()">🗑️ Clear</button>
-        </div>
-        <div id="recommendations" class="tab-content hidden">
-            <h2>Recommended Builds</h2>
-            <div id="recommendations-container"></div>
-        </div>
-        <div id="comparison" class="tab-content hidden">
-            <h2>Gear Comparison</h2>
-            <select id="slot">
-                <option value="helm">Helm</option>
-                <option value="chest">Chest</option>
-                <option value="gloves">Gloves</option>
-                <option value="pants">Pants</option>
-                <option value="boots">Boots</option>
-                <option value="weapon">Weapon</option>
-            </select>
-            <input id="new-item" placeholder="New item stats">
-            <button onclick="compareGear()">Compare</button>
-            <div id="comparison-results"></div>
-        </div>
+  <div class="container">
+    <header><h1>⚔️ Diablo 4 Build Optimizer ⚔️</h1></header>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab(event,'gear-input')">🎯 Gear Input</button>
+      <button class="tab" onclick="switchTab(event,'recommendations')">📋 Recommendations</button>
+      <button class="tab" onclick="switchTab(event,'comparison')">⚖️ Comparison</button>
     </div>
-    <script>
-        const saveGear = () => document.querySelectorAll('input,select').forEach(el => localStorage.setItem(el.id, el.value));
-        const loadGear = () => document.querySelectorAll('input,select').forEach(el => el.value = localStorage.getItem(el.id) || '');
-        window.onload = loadGear;
-        document.querySelectorAll('input,select').forEach(el => el.addEventListener('input', saveGear));
 
-        function switchTab(e, id) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(id).classList.remove('hidden');
-            e.currentTarget.classList.add('active');
-        }
+    <div id="gear-input" class="tab-content active">
+      <h2>Select Class & Input Gear</h2>
+      <select id="class-selector">
+        <option value="barbarian">Barbarian</option>
+        <option value="druid">Druid</option>
+        <option value="necromancer">Necromancer</option>
+        <option value="rogue">Rogue</option>
+        <option value="sorcerer">Sorcerer</option>
+        <option value="spiritborn">Spiritborn</option>
+      </select>
+      <div class="gear-grid">
+        <div class="gear-section">
+          <label for="helm">Helm</label>
+          <select id="helm-type">
+            <option value="">Type</option>
+            <option value="Legendary">Legendary</option>
+            <option value="Ancestral">Ancestral</option>
+            <option value="Unique">Unique</option>
+            <option value="Mythic Unique">Mythic Unique</option>
+          </select>
+          <input id="helm" placeholder="Helm stats">
+        </div>
+        <div class="gear-section">
+          <label for="chest">Chest</label>
+          <select id="chest-type">
+            <option value="">Type</option>
+            <option value="Legendary">Legendary</option>
+            <option value="Ancestral">Ancestral</option>
+            <option value="Unique">Unique</option>
+            <option value="Mythic Unique">Mythic Unique</option>
+          </select>
+          <input id="chest" placeholder="Chest stats">
+        </div>
+        <div class="gear-section">
+          <label for="gloves">Gloves</label>
+          <select id="gloves-type">
+            <option value="">Type</option>
+            <option value="Legendary">Legendary</option>
+            <option value="Ancestral">Ancestral</option>
+            <option value="Unique">Unique</option>
+            <option value="Mythic Unique">Mythic Unique</option>
+          </select>
+          <input id="gloves" placeholder="Gloves stats">
+        </div>
+        <div class="gear-section">
+          <label for="pants">Pants</label>
+          <select id="pants-type">
+            <option value="">Type</option>
+            <option value="Legendary">Legendary</option>
+            <option value="Ancestral">Ancestral</option>
+            <option value="Unique">Unique</option>
+            <option value="Mythic Unique">Mythic Unique</option>
+          </select>
+          <input id="pants" placeholder="Pants stats">
+        </div>
+        <div class="gear-section">
+          <label for="boots">Boots</label>
+          <select id="boots-type">
+            <option value="">Type</option>
+            <option value="Legendary">Legendary</option>
+            <option value="Ancestral">Ancestral</option>
+            <option value="Unique">Unique</option>
+            <option value="Mythic Unique">Mythic Unique</option>
+          </select>
+          <input id="boots" placeholder="Boots stats">
+        </div>
+        <div class="gear-section">
+          <label for="weapon">Weapon</label>
+          <select id="weapon-type">
+            <option value="">Type</option>
+            <option value="Legendary">Legendary</option>
+            <option value="Ancestral">Ancestral</option>
+            <option value="Unique">Unique</option>
+            <option value="Mythic Unique">Mythic Unique</option>
+          </select>
+          <input id="weapon" placeholder="Weapon stats">
+        </div>
+      </div>
+      <button onclick="generateRecommendations()">🔍 Generate</button>
+      <button onclick="clearGearInputs()">🗑️ Clear</button>
+    </div>
 
-        function showAlert(msg, type = 'info') {
-            let a = document.createElement('div');
-            a.textContent = msg;
-            a.style = `position:fixed;top:10px;right:10px;background:${type == 'error' ? '#f44' : '#4a4'};color:#fff;padding:10px;border-radius:5px;z-index:9999;`;
-            document.body.appendChild(a);
-            setTimeout(() => a.remove(), 3000);
-        }
+    <div id="recommendations" class="tab-content">
+      <h2>Recommended Builds</h2>
+      <div id="recommendations-container"></div>
+    </div>
 
-        function clearGearInputs() {
-            document.querySelectorAll('input').forEach(i => {
-                i.value = '';
-                localStorage.removeItem(i.id);
-            });
-            showAlert('Gear cleared!');
-        }
-
-        function generateRecommendations() {
-            const cl = document.getElementById('class-selector').value;
-            const r = document.getElementById('recommendations-container');
-            const builds = {
-                barbarian: ["Upheaval Barbarian", "Whirlwind Barbarian", "Thorns Barbarian"],
-                druid: ["Storm Druid", "Werewolf Druid", "Earthen Bulwark Druid"],
-                necromancer: ["Bone Spear Necromancer", "Summoner Necromancer", "Blood Lance Necromancer"],
-                rogue: ["Penetrating Shot Rogue", "Twisting Blades Rogue", "Poison Trap Rogue"],
-                sorcerer: ["Frozen Orb Sorcerer", "Chain Lightning Sorcerer", "Fire Wall Sorcerer"],
-                spiritborn: ["Centipede Spiritborn", "Quill Volley Spiritborn", "Eagle Spiritborn"]
-            };
-            r.innerHTML = builds[cl].map(b => `<div style='margin-bottom:10px;padding:10px;background:#333;border-radius:5px;'>🔸 ${b}</div>`).join('');
-            switchTab({ currentTarget: document.querySelectorAll('.tab')[1] }, 'recommendations');
-        }
-
-        function compareGear() {
-            let slot = document.getElementById('slot').value;
-            let current = document.getElementById(slot).value;
-            let newGear = document.getElementById('new-item').value;
-            if (!current || !newGear) {
-                showAlert('Enter both gear items.', 'error');
-                return;
-            }
-            document.getElementById('comparison-results').innerHTML = `<p>Comparing ${slot}:<br><strong>Current:</strong> ${current}<br><strong>New:</strong> ${newGear}</p>`;
-        }
-    </script>
+    <div id="comparison" class="tab-content">
+      <h2>Gear Comparison</h2>
+      <select id="slot">
+        <option value="helm">Helm</option>
+        <option value="chest">Chest</option>
+        <option value="gloves">Gloves</option>
+        <option value="pants">Pants</option>
+        <option value="boots">Boots</option>
+        <option value="weapon">Weapon</option>
+      </select>
+      <input id="new-item" placeholder="New item stats">
+      <button onclick="compareGear()">Compare</button>
+      <div id="comparison-results"></div>
+    </div>
+  </div>
+  <script>
+    function switchTab(event, tabId) {
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      event.currentTarget.classList.add('active');
+    }
+    function generateRecommendations() {
+      const container = document.getElementById('recommendations-container');
+      container.innerHTML = `<p style="color:#ccc;">Feature coming soon! Personalized recommendations based on your gear and class will appear here.</p>`;
+      switchTab({ currentTarget: document.querySelector('.tab:nth-child(2)') }, 'recommendations');
+    }
+    function compareGear() {
+      const slot = document.getElementById('slot').value;
+      const current = document.getElementById(slot).value;
+      const newItem = document.getElementById('new-item').value;
+      const output = document.getElementById('comparison-results');
+      if (!current || !newItem) {
+        output.innerHTML = `<p style="color:red;">Please fill in both current and new gear stats.</p>`;
+        return;
+      }
+      output.innerHTML = `<p><strong>${slot}</strong> comparison:<br>Current: ${current}<br>New: ${newItem}</p>`;
+    }
+    function clearGearInputs() {
+      document.querySelectorAll('input').forEach(input => input.value = '');
+      document.querySelectorAll('select').forEach(select => {
+        if (select.id.endsWith('-type')) select.value = '';
+      });
+    }
+  </script>
 </body>
 </html>
