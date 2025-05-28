@@ -130,7 +130,7 @@
   </div>
 
   <script>
-    const gearSlots = {
+const classGearSlots = {
   barbarian: [
     'helm', 'chest', 'gloves', 'pants', 'boots', 'amulet', 'ring1', 'ring2',
     'bludgeoning', 'slashing', 'dual1', 'dual2'
@@ -174,32 +174,32 @@
     const selectedGear = {};
     let currentSlot = '';
 
-  function renderGearGrid() {
+    function renderGearGrid() {
       const grid = document.getElementById('gearGrid');
       const selectedClass = document.getElementById('class-select').value;
       const validSlots = classGearSlots[selectedClass];
-  grid.innerHTML = '';
+      grid.innerHTML = '';
 
-  gearSlots.filter(slot => validSlots.includes(slot.key)).forEach(slot => {
-    const div = document.createElement('div');
-    div.className = 'gear-slot';
-    div.onclick = () => openModal(slot.key);
+      gearSlots.filter(slot => validSlots.includes(slot.key)).forEach(slot => {
+        const div = document.createElement('div');
+        div.className = 'gear-slot';
+        div.onclick = () => openModal(slot.key);
 
-    const img = document.createElement('img');
-    img.src = `https://cdn.mobalytics.gg/assets/diablo-4/images/gear-slots/${slot.icon}.svg`;
-    img.alt = slot.label;
+        const img = document.createElement('img');
+        img.src = `https://cdn.mobalytics.gg/assets/diablo-4/images/gear-slots/${slot.icon}.svg`;
+        img.alt = slot.label;
 
-    const name = document.createElement('span');
-    name.textContent = slot.label;
+        const name = document.createElement('span');
+        name.textContent = slot.label;
 
-    const detail = document.createElement('span');
-    detail.id = `gear-${slot.key}`;
-    detail.textContent = selectedGear[slot.key] || 'Empty';
+        const detail = document.createElement('span');
+        detail.id = `gear-${slot.key}`;
+        detail.textContent = selectedGear[slot.key] || 'Empty';
 
-    div.appendChild(img);
-    div.appendChild(name);
-    div.appendChild(detail);
-    grid.appendChild(div);
+        div.appendChild(img);
+        div.appendChild(name);
+        div.appendChild(detail);
+        grid.appendChild(div);
   });
 }
 
