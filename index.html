@@ -70,8 +70,17 @@
       padding: 20px;
       border-radius: 8px;
       width: 90%;
-      max-width: 600px;
+      max-width: 700px;
       color: #fff;
+      display: flex;
+      gap: 20px;
+    }
+    #gearList {
+      flex: 1;
+      max-height: 400px;
+      overflow-y: auto;
+      border-right: 1px solid #555;
+      padding-right: 10px;
     }
     #gearList li {
       list-style: none;
@@ -81,6 +90,11 @@
     }
     #gearList li:hover, #gearList li.selected {
       background-color: #444;
+    }
+    #statInputs {
+      flex: 2;
+      max-height: 400px;
+      overflow-y: auto;
     }
     .modal-actions {
       margin-top: 10px;
@@ -115,17 +129,20 @@
 
   <div id="gearModal">
     <div id="gearModalContent">
-      <h2>Select Gear or Aspect</h2>
-      <input type="text" id="gearSearch" placeholder="Search..." oninput="filterGearList()" style="width: 100%; margin-bottom: 10px;">
-      <ul id="gearList"></ul>
-
-      <div id="statInputs"></div>
-      <button onclick="addStatEntry()">Add Stat</button>
-
-      <div class="modal-actions">
-        <button onclick="applyGearSelection()">Apply</button>
-        <button onclick="closeModal()">Cancel</button>
+      <div>
+        <h2>Select Gear or Aspect</h2>
+        <input type="text" id="gearSearch" placeholder="Search..." oninput="filterGearList()" style="width: 100%; margin-bottom: 10px;">
+        <ul id="gearList"></ul>
       </div>
+      <div>
+        <h3>Stats & Greater Affixes</h3>
+        <div id="statInputs"></div>
+        <button onclick="addStatEntry()">Add Stat</button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button onclick="applyGearSelection()">Apply</button>
+      <button onclick="closeModal()">Cancel</button>
     </div>
   </div>
 
