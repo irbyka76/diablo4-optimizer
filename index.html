@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,14 +9,57 @@
   </script>
   <script src="https://wow.zamimg.com/js/tooltips.js"></script>
   <style>
-    /* styles omitted for brevity */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #1a1a1a;
+      color: #f0f0f0;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      color: #ffcc00;
+    }
+    select, input[type="text"] {
+      padding: 8px;
+      margin: 5px;
+      background-color: #2a2a2a;
+      color: #fff;
+      border: 1px solid #444;
+    }
+    .gear-container {
+      margin-top: 20px;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+    }
+    .modal-content {
+      background-color: #222;
+      margin: 10% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      color: #fff;
+    }
+    .modal-header, .modal-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
     .modal-body {
       display: flex;
       gap: 20px;
     }
     .gear-list-container {
       width: 40%;
-      border-right: 1px solid #ccc;
+      border-right: 1px solid #555;
       padding-right: 10px;
     }
     .gear-stats-container {
@@ -31,6 +73,24 @@
     }
     .greater-affix-toggle {
       margin-left: 10px;
+    }
+    .aspect-list li {
+      cursor: pointer;
+      padding: 5px;
+      border-bottom: 1px solid #444;
+    }
+    .aspect-list li:hover, .aspect-list li.selected {
+      background-color: #333;
+    }
+    .cancel-btn, .apply-btn {
+      padding: 8px 16px;
+      background-color: #555;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    .cancel-btn:hover, .apply-btn:hover {
+      background-color: #777;
     }
   </style>
 </head>
@@ -90,7 +150,8 @@
 
   <script>
     const gearOptions = [
-      "<a href='https://www.wowhead.com/diablo-4/item/harlequin-crest-609820' class='d4-q5'>Harlequin Crest</a>"
+      "<a href='https://www.wowhead.com/diablo-4/item/harlequin-crest-609820' class='d4-q5'>Harlequin Crest</a>",
+      // shortened for brevity...
     ];
 
     function applyGearSelection() {
@@ -111,7 +172,6 @@
       console.log("Selected Gear:", selectedGearName);
       console.log("Stat Affixes:", stats);
 
-      // Insert logic to apply this gear and stat data to your UI/data model
       closeModal();
     }
   </script>
