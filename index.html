@@ -106,6 +106,7 @@
     <option value="spiritborn">Spiritborn</option>
   </select>
 
+  <button onclick="openModal()">Add Gear</button>
   <div id="gear-inputs" class="gear-container"></div>
 
   <div class="modal" id="gearModal">
@@ -150,8 +151,8 @@
 
   <script>
     const gearOptions = [
-      "<a href='https://www.wowhead.com/diablo-4/item/harlequin-crest-609820' class='d4-q5'>Harlequin Crest</a>",
-      // shortened for brevity...
+      "<li onclick='selectGear(this)'><a href='https://www.wowhead.com/diablo-4/item/harlequin-crest-609820' class='d4-q5'>Harlequin Crest</a></li>",
+      "<li onclick='selectGear(this)'><a href='https://www.wowhead.com/diablo-4/aspect/aspect-of-audacity-1288916' class='d4-q3'>Aspect of Audacity</a></li>"
     ];
 
     function applyGearSelection() {
@@ -173,6 +174,38 @@
       console.log("Stat Affixes:", stats);
 
       closeModal();
+    }
+
+    function updateGearSlots() {
+      console.log("Class selected:", document.getElementById("class-select").value);
+    }
+
+    function closeModal() {
+      document.getElementById("gearModal").style.display = "none";
+    }
+
+    function openModal() {
+      document.getElementById("gearModal").style.display = "block";
+      populateGearList();
+    }
+
+    function populateGearList() {
+      const list = document.getElementById("gearList");
+      list.innerHTML = gearOptions.join("");
+    }
+
+    function selectGear(item) {
+      document.querySelectorAll("#gearList li").forEach(li => li.classList.remove("selected"));
+      item.classList.add("selected");
+    }
+
+    function filterGearList() {
+      const search = document.getElementById("gearSearch").value.toLowerCase();
+      const list = document.querySelectorAll("#gearList li");
+
+      list.forEach(li => {
+        li.style.display = li.textContent.toLowerCase().includes(search) ? "block" : "none";
+      });
     }
   </script>
 </body>
