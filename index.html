@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" type="image/x-icon" href="d4.ico">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Diablo 4 Optimizer</title>
-  <link rel="icon" type="image/x-icon" href="d4.ico">
   <script>
     const whTooltips = {colorLinks: true, iconizeLinks: true, renameLinks: true};
   </script>
@@ -27,78 +27,72 @@
       color: #fff;
       border: 1px solid #444;
     }
-    .gear-container {
+    .gear-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
       margin-top: 20px;
     }
-    .modal {
+    .gear-slot {
+      background-color: #292944;
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      border: 1px solid #444;
+    }
+    .gear-slot img {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 8px;
+    }
+    .gear-slot:hover {
+      background-color: #383866;
+    }
+    .gear-slot span {
+      display: block;
+      color: #ccc;
+    }
+    #gearModal {
       display: none;
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.7);
+      background-color: rgba(0,0,0,0.8);
       z-index: 1000;
+      justify-content: center;
+      align-items: center;
     }
-    .modal-content {
-      background-color: #222;
-      margin: 10% auto;
+    #gearModalContent {
+      background: #2c2c3c;
       padding: 20px;
-      border: 1px solid #888;
-      width: 80%;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 500px;
       color: #fff;
     }
-    .modal-header, .modal-footer {
+    #gearList li {
+      list-style: none;
+      padding: 8px;
+      border-bottom: 1px solid #444;
+      cursor: pointer;
+    }
+    #gearList li:hover, #gearList li.selected {
+      background-color: #444;
+    }
+    .modal-actions {
+      margin-top: 10px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .modal-body {
-      display: flex;
-      gap: 20px;
-    }
-    .gear-list-container {
-      width: 40%;
-      border-right: 1px solid #555;
-      padding-right: 10px;
-    }
-    .gear-stats-container {
-      width: 60%;
-      padding-left: 10px;
-    }
-    .stat-entry {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .greater-affix-toggle {
-      margin-left: 10px;
-    }
-    .aspect-list li {
-      cursor: pointer;
-      padding: 5px;
-      border-bottom: 1px solid #444;
-    }
-    .aspect-list li:hover, .aspect-list li.selected {
-      background-color: #333;
-    }
-    .cancel-btn, .apply-btn {
-      padding: 8px 16px;
-      background-color: #555;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-    }
-    .cancel-btn:hover, .apply-btn:hover {
-      background-color: #777;
     }
   </style>
 </head>
 <body>
   <h1>Diablo 4 Build Optimizer</h1>
   <label for="class-select">Select Class:</label>
-  <select id="class-select" onchange="updateGearSlots()">
+  <select id="class-select">
     <option value="barbarian">Barbarian</option>
     <option value="druid">Druid</option>
     <option value="necromancer">Necromancer</option>
@@ -107,107 +101,113 @@
     <option value="spiritborn">Spiritborn</option>
   </select>
 
-  <button onclick="openModal()">Add Gear</button>
-  <div id="gear-inputs" class="gear-container"></div>
+  <div class="gear-grid" id="gearGrid"></div>
 
-  <div class="modal" id="gearModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Select Gear or Aspect</h2>
-        <span style="cursor:pointer" onclick="closeModal()">&times;</span>
-      </div>
-      <div class="modal-body">
-        <div class="gear-list-container">
-          <input type="text" id="gearSearch" placeholder="Search..." oninput="filterGearList()">
-          <ul class="aspect-list" id="gearList"></ul>
-        </div>
-        <div class="gear-stats-container" id="gearStats">
-          <h3>Stats <span style="font-size:0.8em;color:gray">(optional)</span></h3>
-          <div id="statInputs">
-            <div class="stat-entry">
-              <input type="text" placeholder="e.g. 30% Attack Speed">
-              <input type="checkbox" class="greater-affix-toggle" title="Greater Affix">
-            </div>
-            <div class="stat-entry">
-              <input type="text" placeholder="e.g. 110 All Stats">
-              <input type="checkbox" class="greater-affix-toggle" title="Greater Affix">
-            </div>
-            <div class="stat-entry">
-              <input type="text" placeholder="e.g. 86 Life On Hit">
-              <input type="checkbox" class="greater-affix-toggle" title="Greater Affix">
-            </div>
-            <div class="stat-entry">
-              <input type="text" placeholder="e.g. 10% Maximum Resistance">
-              <input type="checkbox" class="greater-affix-toggle" title="Greater Affix">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="cancel-btn" onclick="closeModal()">Cancel</button>
-        <button class="apply-btn" onclick="applyGearSelection()">Apply</button>
+  <div id="gearModal">
+    <div id="gearModalContent">
+      <h2>Select Gear or Aspect</h2>
+      <input type="text" id="gearSearch" placeholder="Search..." oninput="filterGearList()" style="width: 100%; margin-bottom: 10px;">
+      <ul id="gearList"></ul>
+      <div class="modal-actions">
+        <button onclick="applyGearSelection()">Apply</button>
+        <button onclick="closeModal()">Cancel</button>
       </div>
     </div>
   </div>
 
   <script>
-    const gearOptions = [
-      "<li onclick='selectGear(this)'><a href='https://www.wowhead.com/diablo-4/item/harlequin-crest-609820' class='d4-q5'>Harlequin Crest</a></li>",
-      "<li onclick='selectGear(this)'><a href='https://www.wowhead.com/diablo-4/aspect/aspect-of-audacity-1288916' class='d4-q3'>Aspect of Audacity</a></li>"
+    const gearSlots = [
+      { key: 'helm', label: 'Helm', icon: 'helm' },
+      { key: 'chest', label: 'Chest Armor', icon: 'chest-armor' },
+      { key: 'gloves', label: 'Gloves', icon: 'gloves' },
+      { key: 'pants', label: 'Pants', icon: 'pants' },
+      { key: 'boots', label: 'Boots', icon: 'boots' },
+      { key: 'ranged', label: 'Ranged Weapon', icon: 'ranged-weapon' },
+      { key: 'amulet', label: 'Amulet', icon: 'amulet' },
+      { key: 'ring1', label: 'Ring 1', icon: 'ring-1' },
+      { key: 'ring2', label: 'Ring 2', icon: 'ring-2' },
+      { key: 'dual1', label: 'Dual-Wield 1', icon: 'dual-wield-weapon-1' },
+      { key: 'dual2', label: 'Dual-Wield 2', icon: 'dual-wield-weapon-2' }
     ];
 
-    function applyGearSelection() {
-      const selectedGear = document.querySelector("#gearList li.selected");
-      const selectedGearName = selectedGear ? selectedGear.textContent.trim() : "";
+    const gearOptions = [
+      "Harlequin Crest",
+      "Scoundrel's Leathers",
+      "Trickster's Aspect",
+      "Eyes in the Dark",
+      "Beastfall Boots",
+      "Banished Lord's Talisman",
+      "Aspect of Surprise",
+      "Ring of Starless Skies",
+      "Aspect of Apogeic Furor",
+      "Opportunist's Aspect",
+      "Doombringer"
+    ];
 
-      const statEntries = document.querySelectorAll("#statInputs .stat-entry");
-      const stats = [];
+    const selectedGear = {};
+    let currentSlot = '';
 
-      statEntries.forEach(entry => {
-        const statText = entry.querySelector("input[type='text']").value.trim();
-        const isGreaterAffix = entry.querySelector("input[type='checkbox']").checked;
-        if (statText) {
-          stats.push({ text: statText, greaterAffix: isGreaterAffix });
-        }
+    function renderGearGrid() {
+      const grid = document.getElementById('gearGrid');
+      grid.innerHTML = '';
+      gearSlots.forEach(slot => {
+        const div = document.createElement('div');
+        div.className = 'gear-slot';
+        div.onclick = () => openModal(slot.key);
+
+        const img = document.createElement('img');
+        img.src = `https://cdn.mobalytics.gg/assets/diablo-4/images/gear-slots/${slot.icon}.svg`;
+        img.alt = slot.label;
+
+        const name = document.createElement('span');
+        name.textContent = slot.label;
+
+        const detail = document.createElement('span');
+        detail.id = `gear-${slot.key}`;
+        detail.textContent = selectedGear[slot.key] || 'Empty';
+
+        div.appendChild(img);
+        div.appendChild(name);
+        div.appendChild(detail);
+        grid.appendChild(div);
       });
-
-      console.log("Selected Gear:", selectedGearName);
-      console.log("Stat Affixes:", stats);
-
-      closeModal();
     }
 
-    function updateGearSlots() {
-      console.log("Class selected:", document.getElementById("class-select").value);
+    function openModal(slotKey) {
+      currentSlot = slotKey;
+      document.getElementById('gearModal').style.display = 'flex';
+      filterGearList();
     }
 
     function closeModal() {
-      document.getElementById("gearModal").style.display = "none";
-    }
-
-    function openModal() {
-      document.getElementById("gearModal").style.display = "block";
-      populateGearList();
-    }
-
-    function populateGearList() {
-      const list = document.getElementById("gearList");
-      list.innerHTML = gearOptions.join("");
-    }
-
-    function selectGear(item) {
-      document.querySelectorAll("#gearList li").forEach(li => li.classList.remove("selected"));
-      item.classList.add("selected");
+      document.getElementById('gearModal').style.display = 'none';
     }
 
     function filterGearList() {
-      const search = document.getElementById("gearSearch").value.toLowerCase();
-      const list = document.querySelectorAll("#gearList li");
-
-      list.forEach(li => {
-        li.style.display = li.textContent.toLowerCase().includes(search) ? "block" : "none";
+      const filter = document.getElementById('gearSearch').value.toLowerCase();
+      const list = document.getElementById('gearList');
+      list.innerHTML = '';
+      gearOptions.filter(option => option.toLowerCase().includes(filter)).forEach(option => {
+        const li = document.createElement('li');
+        li.textContent = option;
+        li.onclick = () => {
+          document.querySelectorAll('#gearList li').forEach(el => el.classList.remove('selected'));
+          li.classList.add('selected');
+        };
+        list.appendChild(li);
       });
     }
+
+    function applyGearSelection() {
+      const selectedLi = document.querySelector('#gearList li.selected');
+      if (selectedLi) {
+        selectedGear[currentSlot] = selectedLi.textContent;
+        renderGearGrid();
+        closeModal();
+      }
+    }
+
+    renderGearGrid();
   </script>
 </body>
 </html>
