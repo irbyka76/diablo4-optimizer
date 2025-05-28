@@ -70,7 +70,7 @@
       padding: 20px;
       border-radius: 8px;
       width: 90%;
-      max-width: 700px;
+      max-width: 850px;
       color: #fff;
       display: flex;
       gap: 20px;
@@ -103,13 +103,17 @@
     }
     .stat-entry {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin: 5px 0;
+      gap: 10px;
+      margin: 6px 0;
     }
     .stat-entry input[type="text"] {
       flex: 1;
-      margin-right: 10px;
+    }
+    .greater-affix-label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
   </style>
 </head>
@@ -256,10 +260,14 @@
 
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
-      checkbox.title = 'Greater Affix';
+
+      const label = document.createElement('label');
+      label.className = 'greater-affix-label';
+      label.appendChild(checkbox);
+      label.appendChild(document.createTextNode('Greater Affix'));
 
       div.appendChild(input);
-      div.appendChild(checkbox);
+      div.appendChild(label);
       container.appendChild(div);
     }
 
