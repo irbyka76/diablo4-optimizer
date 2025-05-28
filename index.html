@@ -174,31 +174,34 @@
     const selectedGear = {};
     let currentSlot = '';
 
-    function renderGearGrid() {
+  function renderGearGrid() {
       const grid = document.getElementById('gearGrid');
-      grid.innerHTML = '';
-      gearSlots.forEach(slot => {
-        const div = document.createElement('div');
-        div.className = 'gear-slot';
-        div.onclick = () => openModal(slot.key);
+      const selectedClass = document.getElementById('class-select').value;
+      const validSlots = classGearSlots[selectedClass];
+  grid.innerHTML = '';
 
-        const img = document.createElement('img');
-        img.src = `https://cdn.mobalytics.gg/assets/diablo-4/images/gear-slots/${slot.icon}.svg`;
-        img.alt = slot.label;
+  gearSlots.filter(slot => validSlots.includes(slot.key)).forEach(slot => {
+    const div = document.createElement('div');
+    div.className = 'gear-slot';
+    div.onclick = () => openModal(slot.key);
 
-        const name = document.createElement('span');
-        name.textContent = slot.label;
+    const img = document.createElement('img');
+    img.src = `https://cdn.mobalytics.gg/assets/diablo-4/images/gear-slots/${slot.icon}.svg`;
+    img.alt = slot.label;
 
-        const detail = document.createElement('span');
-        detail.id = `gear-${slot.key}`;
-        detail.textContent = selectedGear[slot.key] || 'Empty';
+    const name = document.createElement('span');
+    name.textContent = slot.label;
 
-        div.appendChild(img);
-        div.appendChild(name);
-        div.appendChild(detail);
-        grid.appendChild(div);
-      });
-    }
+    const detail = document.createElement('span');
+    detail.id = `gear-${slot.key}`;
+    detail.textContent = selectedGear[slot.key] || 'Empty';
+
+    div.appendChild(img);
+    div.appendChild(name);
+    div.appendChild(detail);
+    grid.appendChild(div);
+  });
+}
 
     function openModal(slotKey) {
       currentSlot = slotKey;
