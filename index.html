@@ -119,8 +119,8 @@
 </head>
 <body>
   <video autoplay muted loop id="bgVideo" style="position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; z-index: -1;">
-  <source src="background.mp4" type="video/mp4">
-  Your browser does not support HTML5 video.
+    <source src="background.mp4" type="video/mp4">
+    Your browser does not support HTML5 video.
   </video>
   <h1>Diablo 4 Build Optimizer</h1>
   <label for="class-select">Select Class:</label>
@@ -132,9 +132,7 @@
     <option value="sorcerer">Sorcerer</option>
     <option value="spiritborn">Spiritborn</option>
   </select>
-
   <div class="gear-grid" id="gearGrid"></div>
-
   <div id="gearModal">
     <div id="gearModalContent">
       <div>
@@ -153,8 +151,91 @@
       <button onclick="closeModal()">Cancel</button>
     </div>
   </div>
-
   <script>
+    const selectedGear = {};
+    let currentSlot = '';
+
+    async function fetchGearData(name) {
+      try {
+        const res = await fetch('https://d4api.dev/api/items');
+        const items = await res.json();
+        return items.find(item => item.name.toLowerCase() === name.toLowerCase());
+      } catch (e) {
+        console.error('Failed to fetch item data', e);
+        return null;
+      }
+    }
+
+    async function openModal(slotKey) {
+      currentSlot = slotKey;
+      document.getElementById('gearModal').style.display = 'flex';
+      filterGearList();
+      document.getElementById('statInputs').innerHTML = '';
+    }
+
+    async function applyGearSelection() {
+      const selectedLi = document.querySelector('#gearList li.selected');
+      if (!selectedLi) return;
+
+      const itemName = selectedLi.textContent;
+      const itemData = await fetchGearData(itemName);
+
+      selectedGear[currentSlot] = itemName;
+      document.getElementById(`gear-${currentSlot}`).textContent = itemName;
+
+      const statInputs = document.getElementById('statInputs');
+      statInputs.innerHTML = '';
+      if (itemData && itemData.affixes) {
+        itemData.affixes.forEach(affix => {
+          const div = document.createElement('div');
+          div.className = 'stat-entry';
+
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.value = affix;
+
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+
+          const label = document.createElement('label');
+          label.className = 'greater-affix-label';
+          label.appendChild(checkbox);
+          label.appendChild(document.createTextNode('Greater Affix'));
+
+          div.appendChild(input);
+          div.appendChild(label);
+          statInputs.appendChild(div);
+        });
+      }
+      closeModal();
+    }
+
+    function closeModal() {
+      document.getElementById('gearModal').style.display = 'none';
+    }
+
+    function addStatEntry() {
+      const container = document.getElementById('statInputs');
+      const div = document.createElement('div');
+      div.className = 'stat-entry';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = 'Stat name or value';
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+
+      const label = document.createElement('label');
+      label.className = 'greater-affix-label';
+      label.appendChild(checkbox);
+      label.appendChild(document.createTextNode('Greater Affix'));
+
+      div.appendChild(input);
+      div.appendChild(label);
+      container.appendChild(div);
+    }
+
     const classGearSlots = {
       barbarian: ['helm','chest','gloves','pants','boots','amulet','ring1','ring2','bludgeoning','slashing','dual1','dual2'],
       druid: ['helm','chest','gloves','pants','boots','amulet','ring1','ring2','weapon','offhand'],
@@ -196,9 +277,6 @@
       "Doombringer"
     ];
 
-    const selectedGear = {};
-    let currentSlot = '';
-
     function renderGearGrid() {
       const grid = document.getElementById('gearGrid');
       const selectedClass = document.getElementById('class-select').value;
@@ -227,20 +305,6 @@
       });
     }
 
-    function openModal(slotKey) {
-      currentSlot = slotKey;
-      document.getElementById('gearModal').style.display = 'flex';
-      filterGearList();
-      const statInputs = document.getElementById('statInputs');
-      statInputs.innerHTML = '';
-      for (let i = 0; i < 3; i++) addStatEntry();
-      for (let i = 0; i < 2; i++) addStatEntry(true);
-    }
-
-    function closeModal() {
-      document.getElementById('gearModal').style.display = 'none';
-    }
-
     function filterGearList() {
       const filter = document.getElementById('gearSearch').value.toLowerCase();
       const list = document.getElementById('gearList');
@@ -254,37 +318,6 @@
         };
         list.appendChild(li);
       });
-    }
-
-    function addStatEntry(isTempering = false) {
-      const container = document.getElementById('statInputs');
-      const div = document.createElement('div');
-      div.className = 'stat-entry';
-
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.placeholder = isTempering ? 'Tempering Stat' : 'Stat name or value';
-
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-
-      const label = document.createElement('label');
-      label.className = 'greater-affix-label';
-      label.appendChild(checkbox);
-      label.appendChild(document.createTextNode('Greater Affix'));
-
-      div.appendChild(input);
-      div.appendChild(label);
-      container.appendChild(div);
-    }
-
-    function applyGearSelection() {
-      const selectedLi = document.querySelector('#gearList li.selected');
-      if (selectedLi) {
-        selectedGear[currentSlot] = selectedLi.textContent;
-        renderGearGrid();
-        closeModal();
-      }
     }
 
     renderGearGrid();
